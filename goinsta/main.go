@@ -20,7 +20,7 @@
 
 package main
 
-import "github.com/ahmdrz/goinsta/goinsta/cmd"
+import "gopkg.in/ahmdrz/goinsta.v1/goinsta/cmd"
 
 func main() {
 	cmd.Execute()

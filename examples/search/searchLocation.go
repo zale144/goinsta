@@ -1,12 +1,12 @@
 // +build ignore
 
-package main
+package search
 
 import (
 	"fmt"
 	"os"
 
-	e "github.com/ahmdrz/goinsta/examples"
+	e "gopkg.in/ahmdrz/goinsta.v1/examples"
 )
 
 func main() {
@@ -14,7 +14,7 @@ func main() {
 	e.CheckErr(err)
 
 	res, err := inst.Search.Location(
-		os.Args[0], os.Args[1], os.Args[2],
+		os.Args[2], os.Args[3], os.Args[4],
 	)
 	e.CheckErr(err)
 

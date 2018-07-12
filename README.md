@@ -3,7 +3,7 @@
 
 > Unofficial Instagram API for Golang
 
-[![Build Status](https://travis-ci.org/ahmdrz/goinsta.svg?branch=master)](https://travis-ci.org/ahmdrz/goinsta) [![GoDoc](https://godoc.org/github.com/ahmdrz/goinsta?status.svg)](https://godoc.org/github.com/ahmdrz/goinsta) [![Go Report Card](https://goreportcard.com/badge/github.com/ahmdrz/goinsta)](https://goreportcard.com/report/github.com/ahmdrz/goinsta) [![Coverage Status](https://coveralls.io/repos/github/ahmdrz/goinsta/badge.svg?branch=master)](https://coveralls.io/github/ahmdrz/goinsta?branch=master)
+[![Build Status](https://travis-ci.org/ahmdrz/goinsta.svg?branch=master)](https://travis-ci.org/ahmdrz/goinsta) [![GoDoc](https://godoc.org/gopkg.in/ahmdrz/goinsta.v1?status.svg)](https://godoc.org/gopkg.in/ahmdrz/goinsta.v1) [![Go Report Card](https://goreportcard.com/badge/gopkg.in/ahmdrz/goinsta.v1)](https://goreportcard.com/report/gopkg.in/ahmdrz/goinsta.v1) [![Coverage Status](https://coveralls.io/repos/github/ahmdrz/goinsta/badge.svg?branch=master)](https://coveralls.io/github/ahmdrz/goinsta?branch=master)
 
 ## Versioning
 
@@ -23,7 +23,7 @@ go get -u -v gopkg.in/ahmdrz/goinsta.v2
 
 ## New Version !
 
-We are working on a new object-oriented API. Try it and tell us your suggestions. See https://github.com/ahmdrz/goinsta/blob/master/CONTRIBUTING.md
+We are working on a new object-oriented API. Try it and tell us your suggestions. See https://gopkg.in/ahmdrz/goinsta.v1/blob/master/CONTRIBUTION.md
 
 If you want to use the old version you can found it in v1 branch or using gopkg.in/ahmdrz/goinsta.v1/
 
@@ -57,34 +57,27 @@ import (
 
 func main() {
   //insta, err := goinsta.Import("~/.goinsta")
-  insta := goinsta.New("USERNAME", "PASSWORD")
+	insta := goinsta.New("USERNAME", "PASSWORD")
 
   // also you can use New function from gopkg.in/ahmdrz/goinsta.v2/utils
 
-  // insta.SetProxy("http://localhost:8080", true) // true for insecure connections
-  if err := insta.Login(); err != nil {
-    fmt.Println(err)
-    return
-  }
+	if err := insta.Login(); err != nil {
+		fmt.Println(err)
+		return
+	}
   // export your configuration
   // after exporting you can use Import function instead of New function.
   insta.Export("~/.goinsta")
 
-  ...
+	...
 }
 ```
 
-* [**More Examples**](https://github.com/ahmdrz/goinsta/tree/master/examples)
+* [**More Examples**](https://gopkg.in/ahmdrz/goinsta.v1/tree/master/examples)
 
 ## Projects using Goinsta
 
 - [icrawler](https://github.com/themester/icrawler)
-- [go-instabot](https://github.com/tducasse/go-instabot)
-- [ermes](https://github.com/borteo/ermes)
-- [nick\_bot](https://github.com/icholy/nick_bot)
-- [goinstadownload](https://github.com/alejoloaiza/goinstadownload)
-- [instafeed](https://github.com/falzm/instafeed)
-- [keepig](https://github.com/seankhliao/keepig)
 
 ## Legal
 

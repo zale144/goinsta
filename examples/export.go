@@ -1,12 +1,12 @@
 // +build ignore
 
-package main
+package examples
 
 import (
 	"fmt"
 	"os"
 
-	"github.com/ahmdrz/goinsta"
+	"gopkg.in/ahmdrz/goinsta.v1"
 	"github.com/howeyc/gopass"
 )
 

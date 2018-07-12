@@ -24,11 +24,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ahmdrz/goinsta/utils"
 	"github.com/spf13/cobra"
+	"gopkg.in/ahmdrz/goinsta.v1/utils"
 )
 
-//RootCmd is used as a command line interaction with Instagram User Search.
 var RootCmd = &cobra.Command{
 	Use:     "user",
 	Short:   "Search users on Instagram",

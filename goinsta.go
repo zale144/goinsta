@@ -7,10 +7,12 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	neturl "net/url"
-	"os"
-	"path/filepath"
 	"strconv"
 	"time"
+	"bytes"
+	"mime/multipart"
+	"fmt"
+	"strings"
 )
 
 // Instagram represent the main API handler
@@ -63,18 +65,23 @@ type Instagram struct {
 }
 
 // SetDeviceID sets device id
-func (inst *Instagram) SetDeviceID(id string) {
-	inst.dID = id
+func (i *Instagram) SetDeviceID(id string) {
+	i.dID = id
 }
 
 // SetUUID sets uuid
-func (inst *Instagram) SetUUID(uuid string) {
-	inst.uuid = uuid
+func (i *Instagram) SetUUID(uuid string) {
+	i.uuid = uuid
+}
+
+// GetUUID gets uuid
+func (i *Instagram) GetUUID() string {
+	return i.uuid
 }
 
 // SetPhoneID sets phone id
-func (inst *Instagram) SetPhoneID(id string) {
-	inst.pid = id
+func (i *Instagram) SetPhoneID(id string) {
+	i.pid = id
 }
 
 // New creates Instagram structure
@@ -126,15 +133,6 @@ func (inst *Instagram) SetProxy(url string, insecure bool) error {
 // UnsetProxy unsets proxy for connection.
 func (inst *Instagram) UnsetProxy() {
 	inst.c.Transport = nil
-}
-
-// Save exports config to ~/.goinsta
-func (inst *Instagram) Save() error {
-	home := os.Getenv("HOME")
-	if home == "" {
-		home = os.Getenv("home") // for plan9
-	}
-	return inst.Export(filepath.Join(home, ".goinsta"))
 }
 
 // Export exports *Instagram object options
@@ -208,6 +206,69 @@ func Import(path string) (*Instagram, error) {
 	return inst, nil
 }
 
+// TODO MAKE SURE THIS WORKS
+// DirectMessage sends direct message to recipient.
+// Recipient must be user id.
+func (insta *Instagram) DirectMessage(recipient string, message, title string) (DirectMessageResponse, error) {
+	result := DirectMessageResponse{}
+	recipients, err := json.Marshal([][]string{{recipient}})
+	if err != nil {
+		return result, err
+	}
+
+	isLink := strings.Contains(message, "http")
+
+	var b bytes.Buffer
+	w := multipart.NewWriter(&b)
+	uuid := insta.GetUUID()
+	apiUrl := "https://i.instagram.com/api/v1/direct_v2/threads/broadcast/text/"
+
+	w.SetBoundary(uuid)
+	w.WriteField("recipient_users", string(recipients))
+	w.WriteField("client_context", uuid)
+	w.WriteField("thread", `["0"]`)
+	if isLink {
+		w.WriteField("link_urls", `["`+message+`"]`)
+		w.WriteField("link_text", title)
+		w.WriteField("action", "send_item")
+		apiUrl = "https://i.instagram.com/api/v1/direct_v2/threads/broadcast/link/"
+	} else {
+		w.WriteField("text", message)
+	}
+	w.Close()
+
+	req, err := http.NewRequest("POST",apiUrl, &b)
+	if err != nil {
+		return result, err
+	}
+	req.Header.Set("Accept", "*/*")
+	req.Header.Set("Accept-Language", "en-en")
+	req.Header.Set("Content-Type", w.FormDataContentType())
+	req.Header.Set("Connection", "keep-alive")
+	req.Header.Set("User-Agent", "Instagram 10.26.0 Android (18/4.3; 320dpi; 720x1280; Xiaomi; HM 1SW; armani; qcom; en_US)")
+
+	client := &http.Client{
+		Jar: insta.c.Jar,
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return result, err
+	}
+	defer resp.Body.Close()
+
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	if resp.StatusCode != 200 {
+		return result, fmt.Errorf(string(body))
+	}
+
+	json.Unmarshal(body, &result)
+	return result, nil
+}
+
+
+
 func (inst *Instagram) readMsisdnHeader() error {
 	data, err := json.Marshal(
 		map[string]string{
@@ -267,7 +328,7 @@ func (inst *Instagram) zrToken() error {
 	return err
 }
 
-func (inst *Instagram) sendAdID() error {
+func (inst *Instagram) sendAdId() error {
 	data, err := inst.prepareData(
 		map[string]interface{}{
 			"adid": inst.adid,
@@ -306,7 +367,7 @@ func (inst *Instagram) Login() error {
 		return err
 	}
 
-	err = inst.sendAdID()
+	err = inst.sendAdId()
 	if err != nil {
 		return err
 	}
@@ -329,34 +390,41 @@ func (inst *Instagram) Login() error {
 			"google_tokens":       "[]",
 		},
 	)
-	if err != nil {
-		return err
-	}
-	body, err := inst.sendRequest(
-		&reqOptions{
-			Endpoint: urlLogin,
-			Query:    generateSignature(b2s(result)),
-			IsPost:   true,
-			Login:    true,
-		},
-	)
-	if err != nil {
-		return err
-	}
-	inst.pass = ""
+	if err == nil {
+		body, err := inst.sendRequest(
+			&reqOptions{
+				Endpoint: urlLogin,
+				Query:    generateSignature(b2s(result)),
+				IsPost:   true,
+				Login:    true,
+			},
+		)
+		if err != nil {
+			goto end
+		}
+		inst.pass = ""
 
-	// getting account data
-	res := accountResp{}
-	err = json.Unmarshal(body, &res)
-	if err != nil {
-		return err
+		// getting account data
+		res := accountResp{}
+
+		err = json.Unmarshal(body, &res)
+		if err != nil {
+			ierr := instaError{}
+			err = json.Unmarshal(body, &ierr)
+			if err != nil {
+				err = instaToErr(ierr)
+			}
+			goto end
+		}
+		inst.Account = &res.Account
+		inst.Account.inst = inst
+
+		inst.rankToken = strconv.FormatInt(inst.Account.ID, 10) + "_" + inst.uuid
+
+		inst.zrToken()
 	}
 
-	inst.Account = &res.Account
-	inst.Account.inst = inst
-	inst.rankToken = strconv.FormatInt(inst.Account.ID, 10) + "_" + inst.uuid
-	inst.zrToken()
-
+end:
 	return err
 }
 

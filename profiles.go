@@ -41,7 +41,7 @@ func (prof *Profiles) ByID(id int64) (*User, error) {
 
 	body, err := prof.inst.sendRequest(
 		&reqOptions{
-			Endpoint: fmt.Sprintf(urlUserByID, id),
+			Endpoint: fmt.Sprintf(urlUserById, id),
 			Query:    generateSignature(data),
 		},
 	)

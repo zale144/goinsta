@@ -6,7 +6,6 @@ import (
 	"fmt"
 )
 
-// Users is a struct that stores many user's returned by many different methods.
 type Users struct {
 	inst *Instagram
 
@@ -35,7 +34,6 @@ func (users *Users) SetInstagram(inst *Instagram) {
 	users.inst = inst
 }
 
-// ErrNoMore is an error that comes when there is no more elements available on the list.
 var ErrNoMore = errors.New("List end have been reached")
 
 // Next allows to paginate after calling:
@@ -78,11 +76,6 @@ func (users *Users) Next() bool {
 	}
 	users.err = err
 	return false
-}
-
-// Error returns users error
-func (users *Users) Error() error {
-	return users.err
 }
 
 func (users *Users) setValues() {
@@ -235,27 +228,21 @@ func (user *User) Block() error {
 			"user_id": user.ID,
 		},
 	)
-	if err != nil {
-		return err
+	if err == nil {
+		body, err := insta.sendRequest(
+			&reqOptions{
+				Endpoint: fmt.Sprintf(urlUserBlock, user.ID),
+				Query:    generateSignature(data),
+				IsPost:   true,
+			},
+		)
+		if err == nil {
+			resp := friendResp{}
+			err = json.Unmarshal(body, &resp)
+			user.Friendship = resp.Friendship
+		}
 	}
-	body, err := insta.sendRequest(
-		&reqOptions{
-			Endpoint: fmt.Sprintf(urlUserBlock, user.ID),
-			Query:    generateSignature(data),
-			IsPost:   true,
-		},
-	)
-	if err != nil {
-		return err
-	}
-	resp := friendResp{}
-	err = json.Unmarshal(body, &resp)
-	user.Friendship = resp.Friendship
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // Unblock unblocks user
@@ -270,27 +257,21 @@ func (user *User) Unblock() error {
 			"user_id": user.ID,
 		},
 	)
-	if err != nil {
-		return err
+	if err == nil {
+		body, err := insta.sendRequest(
+			&reqOptions{
+				Endpoint: fmt.Sprintf(urlUserUnblock, user.ID),
+				Query:    generateSignature(data),
+				IsPost:   true,
+			},
+		)
+		if err == nil {
+			resp := friendResp{}
+			err = json.Unmarshal(body, &resp)
+			user.Friendship = resp.Friendship
+		}
 	}
-	body, err := insta.sendRequest(
-		&reqOptions{
-			Endpoint: fmt.Sprintf(urlUserUnblock, user.ID),
-			Query:    generateSignature(data),
-			IsPost:   true,
-		},
-	)
-	if err != nil {
-		return err
-	}
-	resp := friendResp{}
-	err = json.Unmarshal(body, &resp)
-	user.Friendship = resp.Friendship
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // Follow started following some user
@@ -308,27 +289,21 @@ func (user *User) Follow() error {
 			"user_id": user.ID,
 		},
 	)
-	if err != nil {
-		return err
+	if err == nil {
+		body, err := insta.sendRequest(
+			&reqOptions{
+				Endpoint: fmt.Sprintf(urlUserFollow, user.ID),
+				Query:    generateSignature(data),
+				IsPost:   true,
+			},
+		)
+		if err == nil {
+			resp := friendResp{}
+			err = json.Unmarshal(body, &resp)
+			user.Friendship = resp.Friendship
+		}
 	}
-	body, err := insta.sendRequest(
-		&reqOptions{
-			Endpoint: fmt.Sprintf(urlUserFollow, user.ID),
-			Query:    generateSignature(data),
-			IsPost:   true,
-		},
-	)
-	if err != nil {
-		return err
-	}
-	resp := friendResp{}
-	err = json.Unmarshal(body, &resp)
-	user.Friendship = resp.Friendship
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // Unfollow unfollows user
@@ -343,27 +318,21 @@ func (user *User) Unfollow() error {
 			"user_id": user.ID,
 		},
 	)
-	if err != nil {
-		return err
+	if err == nil {
+		body, err := insta.sendRequest(
+			&reqOptions{
+				Endpoint: fmt.Sprintf(urlUserUnfollow, user.ID),
+				Query:    generateSignature(data),
+				IsPost:   true,
+			},
+		)
+		if err == nil {
+			resp := friendResp{}
+			err = json.Unmarshal(body, &resp)
+			user.Friendship = resp.Friendship
+		}
 	}
-	body, err := insta.sendRequest(
-		&reqOptions{
-			Endpoint: fmt.Sprintf(urlUserUnfollow, user.ID),
-			Query:    generateSignature(data),
-			IsPost:   true,
-		},
-	)
-	if err != nil {
-		return err
-	}
-	resp := friendResp{}
-	err = json.Unmarshal(body, &resp)
-	user.Friendship = resp.Friendship
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // FriendShip allows user to get friend relationship.

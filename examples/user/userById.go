@@ -1,20 +1,20 @@
 // +build ignore
 
-package main
+package user
 
 import (
 	"fmt"
 	"os"
 	"strconv"
 
-	e "github.com/ahmdrz/goinsta/examples"
+	e "gopkg.in/ahmdrz/goinsta.v1/examples"
 )
 
 func main() {
 	inst, err := e.InitGoinsta("<another user>")
 	e.CheckErr(err)
 
-	id, err := strconv.Atoi(os.Args[0])
+	id, err := strconv.Atoi(os.Args[2])
 	e.CheckErr(err)
 
 	user, err := inst.Profiles.ByID(int64(id))

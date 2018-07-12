@@ -32,9 +32,9 @@ type Comments struct {
 	//PreviewComments                []Comment `json:"preview_comments"`
 }
 
-func (comments *Comments) setValues() {
-	for i := range comments.Items {
-		comments.Items[i].setValues(comments.item.media.instagram())
+func (c *Comments) setValues() {
+	for i := range c.Items {
+		c.Items[i].setValues(c.item.media.instagram())
 	}
 }
 
@@ -283,12 +283,11 @@ floop:
 	return nil
 }
 
-// Comment is a type of Media retrieved by the Comments methods
 type Comment struct {
-	inst  *Instagram
-	idstr string
+	inst *Instagram
 
 	ID                             int64     `json:"pk"`
+	idstr                          string    `json:"-"`
 	Text                           string    `json:"text"`
 	Type                           int       `json:"type"`
 	User                           User      `json:"user"`

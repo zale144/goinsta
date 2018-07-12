@@ -1,12 +1,12 @@
 // +build ignore
 
-package main
+package search
 
 import (
 	"fmt"
 	"os"
 
-	e "github.com/ahmdrz/goinsta/examples"
+	e "gopkg.in/ahmdrz/goinsta.v1/examples"
 )
 
 func main() {
@@ -15,12 +15,11 @@ func main() {
 
 	fmt.Printf("Hello %s!\n", inst.Account.Username)
 
-	tags, err := inst.Search.FeedTags(os.Args[0])
+	// I don't want to make an example of this. Not today.
+	tags, err := inst.Search.FeedTags(os.Args[2])
 	e.CheckErr(err)
 
-	for _, item := range tags.Images {
-		fmt.Printf("   Media found with ID: %s from User %s\n", item.ID, item.User.Username)
-	}
+	// TODO
 
 	if !e.UsingSession {
 		err = inst.Logout()

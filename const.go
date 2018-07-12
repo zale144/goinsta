@@ -36,7 +36,6 @@ const (
 	urlExpose         = "qe/expose/"
 
 	// account
-	urlCurrentUser   = "accounts/current_user/"
 	urlChangePass    = "accounts/change_password/"
 	urlSetPrivate    = "accounts/set_private/"
 	urlSetPublic     = "accounts/set_public/"
@@ -51,7 +50,7 @@ const (
 
 	// users
 	urlUserByName     = "users/%s/usernameinfo/"
-	urlUserByID       = "users/%d/info/"
+	urlUserById       = "users/%d/info/"
 	urlUserBlock      = "friendships/block/%d/"
 	urlUserUnblock    = "friendships/unblock/%d/"
 	urlUserFollow     = "friendships/create/%d/"
@@ -86,7 +85,7 @@ const (
 	urlMediaLikers = "media/%s/likers/"
 
 	// comments
-	urlCommentAdd     = "media/%d/comment/"
+	urlCommentAdd     = "media/%s/comment/"
 	urlCommentDelete  = "media/%s/comment/%s/delete/"
 	urlCommentSync    = "media/%s/comments/"
 	urlCommentDisable = "media/%s/disable_comments/"

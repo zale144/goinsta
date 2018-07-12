@@ -23,11 +23,10 @@ package info
 import (
 	"fmt"
 
-	"github.com/ahmdrz/goinsta/utils"
 	"github.com/spf13/cobra"
+	"gopkg.in/ahmdrz/goinsta.v1/utils"
 )
 
-//RootCmd is used as a command line interaction with Instagram Profile info.
 var RootCmd = &cobra.Command{
 	Use:     "info",
 	Short:   "Get partial info about your account",

@@ -73,15 +73,7 @@ type Account struct {
 // Sync updates account information
 func (account *Account) Sync() error {
 	insta := account.inst
-	data, err := insta.prepareData()
-	if err != nil {
-		return err
-	}
-	body, err := insta.sendRequest(&reqOptions{
-		Endpoint: urlCurrentUser,
-		Query:    generateSignature(data),
-		IsPost:   true,
-	})
+	body, err := insta.sendSimpleRequest(urlUserById, account.ID)
 	if err == nil {
 		resp := profResp{}
 		err = json.Unmarshal(body, &resp)
@@ -319,36 +311,10 @@ func (account *Account) Saved() (*SavedMedia, error) {
 	return nil, err
 }
 
-type editResp struct {
-	Status  string  `json:"status"`
-	Account Account `json:"user"`
-}
-
-func (account *Account) edit() {
-	insta := account.inst
-	acResp := editResp{}
-	body, err := insta.sendRequest(
-		&reqOptions{
-			Endpoint: urlCurrentUser,
-			Query: map[string]string{
-				"edit": "true",
-			},
-		},
-	)
-	if err == nil {
-		err = json.Unmarshal(body, &acResp)
-		if err == nil {
-			acResp.Account.inst = insta
-			*account = acResp.Account
-		}
-	}
-}
-
 // SetBiography changes your Instagram's biography.
 //
 // This function updates current Account information.
 func (account *Account) SetBiography(bio string) error {
-	account.edit() // preparing to edit
 	insta := account.inst
 	data, err := insta.prepareData(
 		map[string]interface{}{

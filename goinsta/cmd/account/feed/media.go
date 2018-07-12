@@ -23,7 +23,7 @@ package feed
 import (
 	"fmt"
 
-	"github.com/ahmdrz/goinsta/utils"
+	"gopkg.in/ahmdrz/goinsta.v1/utils"
 	"github.com/cheggaaa/pb"
 	"github.com/spf13/cobra"
 )

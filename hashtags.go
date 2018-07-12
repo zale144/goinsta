@@ -5,7 +5,6 @@ import (
 	"fmt"
 )
 
-// Hashtag is used for getting the media that matches a hashtag on instagram.
 type Hashtag struct {
 	inst *Instagram
 	err  error

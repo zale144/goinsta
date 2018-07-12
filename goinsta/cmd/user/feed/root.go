@@ -24,7 +24,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-//RootCmd is used as a command line interaction with Instagram user Feed method.
 var RootCmd = &cobra.Command{
 	Use:   "feed",
 	Short: "Get downloads all user feed",

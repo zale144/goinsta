@@ -5,7 +5,6 @@ import (
 	"net/http"
 )
 
-// ConfigFile is a structure to store the session information so that can be exported or imported.
 type ConfigFile struct {
 	ID        int64          `json:"id"`
 	User      string         `json:"username"`
@@ -28,28 +27,13 @@ type PicURLInfo struct {
 	Width  int    `json:"width"`
 }
 
-// ErrorN is general instagram error
-type ErrorN struct {
+type instaError struct {
 	Message   string `json:"message"`
 	Status    string `json:"status"`
 	ErrorType string `json:"error_type"`
 }
 
-// Error503 is instagram API error
-type Error503 struct {
-	Message string
-}
-
-func (e Error503) Error() string {
-	return e.Message
-}
-
-func (e ErrorN) Error() string {
-	return fmt.Sprintf("%s: %s (%s)", e.Status, e.Message, e.ErrorType)
-}
-
-// Error400 is error returned by HTTP 400 status code.
-type Error400 struct {
+type instaError400 struct {
 	Action     string `json:"action"`
 	StatusCode string `json:"status_code"`
 	Payload    struct {
@@ -59,11 +43,16 @@ type Error400 struct {
 	Status string `json:"status"`
 }
 
-func (e Error400) Error() string {
-	return fmt.Sprintf("%s: %s", e.Status, e.Payload.Message)
+func instaToErr(err interface{}) error {
+	switch ierr := err.(type) {
+	case instaError:
+		return fmt.Errorf("%s: %s (%s)", ierr.Status, ierr.Message, ierr.ErrorType)
+	case instaError400:
+		return fmt.Errorf("%s: %s", ierr.Status, ierr.Payload.Message)
+	}
+	return fmt.Errorf("Unknown error :)")
 }
 
-// Nametag is part of the account information.
 type Nametag struct {
 	Mode          int    `json:"mode"`
 	Gradient      int    `json:"gradient"`
@@ -76,7 +65,6 @@ type friendResp struct {
 	Friendship Friendship `json:"friendship_status"`
 }
 
-// Location stores media location information.
 type Location struct {
 	Pk               int     `json:"pk"`
 	Name             string  `json:"name"`
@@ -89,7 +77,6 @@ type Location struct {
 	FacebookPlacesID int64   `json:"facebook_places_id"`
 }
 
-// SuggestedUsers stores the information about user suggestions.
 type SuggestedUsers struct {
 	Type        int `json:"type"`
 	Suggestions []struct {
@@ -116,7 +103,6 @@ type SuggestedUsers struct {
 	TrackingToken    string `json:"tracking_token"`
 }
 
-// Friendship stores the details of the relationship between two users.
 type Friendship struct {
 	IncomingRequest bool `json:"incoming_request"`
 	FollowedBy      bool `json:"followed_by"`
@@ -128,7 +114,6 @@ type Friendship struct {
 	IsMutingReel    bool `json:"is_muting_reel"`
 }
 
-// SavedMedia stores the information about media being saved before in my account.
 type SavedMedia struct {
 	Items []struct {
 		Media Item `json:"media"`
@@ -157,14 +142,12 @@ func (img Images) GetBest() string {
 	return best
 }
 
-// Candidate is something that I really have no idea what it is.
 type Candidate struct {
 	Width  int    `json:"width"`
 	Height int    `json:"height"`
 	URL    string `json:"url"`
 }
 
-// Tag is the information of an user being tagged on any media.
 type Tag struct {
 	In []struct {
 		User                  User        `json:"user"`
@@ -191,7 +174,6 @@ type Caption struct {
 	HasTranslation  bool   `json:"has_translation"`
 }
 
-// Mentions is a user being mentioned on media.
 type Mentions struct {
 	X        float64 `json:"x"`
 	Y        float64 `json:"y"`
@@ -282,7 +264,6 @@ type Broadcast struct {
 	OrganicTrackingToken string `json:"organic_tracking_token"`
 }
 
-// BlockedUser stores information about a used that has been blocked before.
 type BlockedUser struct {
 	// TODO: Convert to user
 	UserID        int64  `json:"user_id"`
@@ -324,7 +305,6 @@ type InboxItemMedia struct {
 	ViewMode        string        `json:"view_mode"`
 }
 
-//InboxItemLike is the heart sent during a conversation.
 type InboxItemLike struct {
 	ItemID    string `json:"item_id"`
 	ItemType  string `json:"item_type"`
@@ -341,4 +321,70 @@ type respLikers struct {
 type threadResp struct {
 	Conversation Conversation `json:"thread"`
 	Status       string       `json:"status"`
+}
+
+// DirectMessageResponse contains direct messages
+type DirectMessageResponse struct {
+	Status  string `json:"status"`
+	Threads []struct {
+		Named bool `json:"named"`
+		Users []struct {
+			Username                   string `json:"username"`
+			HasAnonymousProfilePicture bool   `json:"has_anonymous_profile_picture"`
+			FriendshipStatus           struct {
+				Following       bool `json:"following"`
+				IncomingRequest bool `json:"incoming_request"`
+				OutgoingRequest bool `json:"outgoing_request"`
+				Blocking        bool `json:"blocking"`
+				IsPrivate       bool `json:"is_private"`
+			} `json:"friendship_status"`
+			ProfilePicURL string `json:"profile_pic_url"`
+			ProfilePicID  string `json:"profile_pic_id"`
+			FullName      string `json:"full_name"`
+			Pk            int64  `json:"pk"`
+			IsVerified    bool   `json:"is_verified"`
+			IsPrivate     bool   `json:"is_private"`
+		} `json:"users"`
+		ViewerID         int64         `json:"viewer_id"`
+		MoreAvailableMin bool          `json:"more_available_min"`
+		ThreadID         string        `json:"thread_id"`
+		LastActivityAt   int64         `json:"last_activity_at"`
+		NextMaxID        string        `json:"next_max_id"`
+		Canonical        bool          `json:"canonical"`
+		LeftUsers        []interface{} `json:"left_users"`
+		NextMinID        string        `json:"next_min_id"`
+		Muted            bool          `json:"muted"`
+		Items            []struct {
+			UserID        int64  `json:"user_id"`
+			Text          string `json:"text"`
+			ItemType      string `json:"item_type"`
+			Timestamp     int64  `json:"timestamp"`
+			ItemID        string `json:"item_id"`
+			ClientContext string `json:"client_context"`
+		} `json:"items"`
+		ThreadType       string `json:"thread_type"`
+		MoreAvailableMax bool   `json:"more_available_max"`
+		ThreadTitle      string `json:"thread_title"`
+		LastSeenAt       struct {
+			Num1572292791 struct {
+				ItemID    string `json:"item_id"`
+				Timestamp string `json:"timestamp"`
+			} `json:"1572292791"`
+			Num4178028611 struct {
+				ItemID    string `json:"item_id"`
+				Timestamp string `json:"timestamp"`
+			} `json:"4178028611"`
+		} `json:"last_seen_at"`
+		Inviter struct {
+			Username                   string `json:"username"`
+			HasAnonymousProfilePicture bool   `json:"has_anonymous_profile_picture"`
+			ProfilePicURL              string `json:"profile_pic_url"`
+			ProfilePicID               string `json:"profile_pic_id"`
+			FullName                   string `json:"full_name"`
+			Pk                         int64  `json:"pk"`
+			IsVerified                 bool   `json:"is_verified"`
+			IsPrivate                  bool   `json:"is_private"`
+		} `json:"inviter"`
+		Pending bool `json:"pending"`
+	} `json:"threads"`
 }

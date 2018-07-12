@@ -1,1 +1,1 @@
-module github.com/ahmdrz/goinsta
+module gopkg.in/ahmdrz/goinsta.v1

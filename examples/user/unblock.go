@@ -1,11 +1,11 @@
 // +build ignore
 
-package main
+package user
 
 import (
 	"os"
 
-	e "github.com/ahmdrz/goinsta/examples"
+	e "gopkg.in/ahmdrz/goinsta.v1/examples"
 )
 
 func main() {
@@ -13,7 +13,7 @@ func main() {
 	e.CheckErr(err)
 
 	// if you have someone blocked probably you cannot found it with this method
-	user, err := inst.Profiles.ByName(os.Args[0])
+	user, err := inst.Profiles.ByName(os.Args[2])
 	e.CheckErr(err)
 
 	err = user.Unblock()

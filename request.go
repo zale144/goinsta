@@ -8,7 +8,6 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -45,7 +44,7 @@ func (insta *Instagram) sendSimpleRequest(uri string, a ...interface{}) (body []
 	)
 }
 
-func (insta *Instagram) sendRequest(o *reqOptions) (body []byte, err error) {
+func (inst *Instagram) sendRequest(o *reqOptions) (body []byte, err error) {
 	method := "GET"
 	if o.IsPost {
 		method = "POST"
@@ -99,49 +98,43 @@ func (insta *Instagram) sendRequest(o *reqOptions) (body []byte, err error) {
 	req.Header.Set("X-IG-Bandwidth-TotalBytes-B", "0")
 	req.Header.Set("X-IG-Bandwidth-TotalTime-MS", "0")
 
-	resp, err := insta.c.Do(req)
+	resp, err := inst.c.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	u, _ = url.Parse(goInstaAPIUrl)
-	for _, value := range insta.c.Jar.Cookies(u) {
+	for _, value := range inst.c.Jar.Cookies(u) {
 		if strings.Contains(value.Name, "csrftoken") {
-			insta.token = value.Value
+			inst.token = value.Value
 		}
 	}
 
 	body, err = ioutil.ReadAll(resp.Body)
-	if err == nil {
-		err = isError(resp.StatusCode, body)
+	if err != nil {
+		return
 	}
-	return body, err
-}
 
-func isError(code int, body []byte) (err error) {
-	switch code {
+	switch resp.StatusCode {
 	case 200:
-	case 503:
-		return Error503{
-			Message: "Instagram API error. Try it later.",
-		}
 	case 400:
-		ierr := Error400{}
+		ierr := instaError400{}
 		err = json.Unmarshal(body, &ierr)
 		if err == nil && ierr.Payload.Message != "" {
-			return ierr
+			return nil, instaToErr(ierr)
 		}
 		fallthrough
 	default:
-		ierr := ErrorN{}
+		ierr := instaError{}
 		err = json.Unmarshal(body, &ierr)
 		if err != nil {
-			return fmt.Errorf("Invalid status code: %d: %s", code, body)
+			return nil, fmt.Errorf("Invalid status code: %d", resp.StatusCode)
 		}
-		return ierr
+		return nil, instaToErr(ierr)
 	}
-	return nil
+
+	return body, err
 }
 
 func (insta *Instagram) prepareData(other ...map[string]interface{}) (string, error) {
@@ -150,7 +143,7 @@ func (insta *Instagram) prepareData(other ...map[string]interface{}) (string, er
 		"_csrftoken": insta.token,
 	}
 	if insta.Account != nil && insta.Account.ID != 0 {
-		data["_uid"] = strconv.FormatInt(insta.Account.ID, 10)
+		data["_uid"] = insta.Account.ID
 	}
 
 	for i := range other {

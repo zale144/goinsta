@@ -1,11 +1,11 @@
 // +build ignore
 
-package main
+package timeline
 
 import (
 	"fmt"
 
-	e "github.com/ahmdrz/goinsta/examples"
+	e "gopkg.in/ahmdrz/goinsta.v1/examples"
 )
 
 func main() {

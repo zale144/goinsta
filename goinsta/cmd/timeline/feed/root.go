@@ -23,12 +23,11 @@ package feed
 import (
 	"fmt"
 
-	"github.com/ahmdrz/goinsta/utils"
+	"gopkg.in/ahmdrz/goinsta.v1/utils"
 	"github.com/cheggaaa/pb"
 	"github.com/spf13/cobra"
 )
 
-//RootCmd is used as a command line interaction with Instagram Timeline Feed.
 var RootCmd = &cobra.Command{
 	Use:     "feed",
 	Short:   "Download feed media",

@@ -1,15 +1,6 @@
 package goinsta
 
-import (
-	"fmt"
-	"os"
-
-	e "github.com/ahmdrz/goinsta/examples"
-	"github.com/howeyc/gopass"
-	"gopkg.in/ahmdrz/goinsta.v2"
-)
-
-func ExampleAccount_ChangePassword() {
+func ExampleAccount_ChangePass() {
 	// See more: example/account/changepass.go
 	fmt.Print("Password: ")
 	pass, err := gopass.GetPasswd()
@@ -26,7 +17,7 @@ func ExampleAccount_ChangePassword() {
 	inst := goinsta.New(os.Args[1], string(pass))
 
 	err = inst.Login()
-	e.CheckErr(err)
+	checkErr(err)
 	fmt.Printf("Hello %s!\n", inst.Account.Username)
 
 	err = inst.Account.ChangePassword(string(pass), string(pass2))
@@ -37,7 +28,7 @@ func ExampleAccount_ChangePassword() {
 	}
 
 	err = inst.Logout()
-	e.CheckErr(err)
+	checkErr(err)
 }
 
 func ExampleAccount_Followers() {
